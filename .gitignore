@@ -1,0 +1,7 @@
+# Large binary files
+*.stl
+*.3mf
+
+# Python cache
+__pycache__/
+*.pyc
