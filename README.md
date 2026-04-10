@@ -11,7 +11,7 @@ Role: Software Developer - Computational Geometry
 python stl_analyzer.py DrucksShoe.stl
 
 Requirements
-Python 3.7+
+Python 3.0+
 No external libraries needed
 Built-in modules only: struct, math, sys
 
