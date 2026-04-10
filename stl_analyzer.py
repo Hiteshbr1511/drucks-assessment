@@ -12,19 +12,6 @@ import math     # math functions - built into Python
 import sys      # command line arguments - built into Python
 
 
-# =============================================================================
-# STEP A: PARSE THE STL FILE
-# =============================================================================
-# An STL file describes a 3D shape as a list of triangles.
-# Each triangle has 3 corners (vertices), each corner is a point (x, y, z).
-#
-# STL comes in 2 formats:
-#   BINARY: compact bytes (most common, what we'll likely get)
-#   ASCII:  human readable text
-#
-# We auto-detect which one it is.
-# =============================================================================
-
 def parse_stl(filepath):
     """
     Opens the STL file and returns a list of triangles.
@@ -125,32 +112,7 @@ def _parse_ascii(filepath):
 # =============================================================================
 # TASK 1: VOLUME - Signed Tetrahedra Method
 # =============================================================================
-#
-# HOW IT WORKS (understand this for the interview call):
-#
-# Imagine you pick a point - let's use the ORIGIN (0, 0, 0).
-# For every triangle on the mesh surface, connect all 3 corners
-# to the origin. This forms a TETRAHEDRON (4-sided pyramid).
-#
-# The signed volume of that tetrahedron is:
-#
-#   V = (v1 · (v2 × v3)) / 6
-#
-#   v2 × v3  = cross product  → vector perpendicular to the triangle
-#   v1 · ... = dot product    → scalar measuring depth/projection
-#   ÷ 6      = tetrahedron volume formula (1/3 base × height, simplified)
-#
-# WHY "SIGNED"?
-# Triangles pointing OUTWARD → positive volume
-# Triangles pointing INWARD  → negative volume
-#
-# When you ADD all signed volumes of a closed mesh:
-#   - Tetrahedra inside the shape ADD UP
-#   - Tetrahedra outside CANCEL OUT
-#   - Result = exact volume of the mesh
-#
-# Only works for CLOSED (watertight) meshes with no holes.
-# =============================================================================
+
 
 def _tet_signed_volume(v1, v2, v3):
     """
@@ -193,16 +155,7 @@ def compute_volume(triangles):
 # =============================================================================
 # TASK 2: BOUNDING BOX + LAYER COUNT
 # =============================================================================
-#
-# BOUNDING BOX:
-# Scan every vertex. Track the smallest and largest x, y, z values.
-# This gives a rectangular box that wraps the entire model.
-#
-# LAYER COUNT:
-# Slicers cut the model into horizontal slices from bottom to top.
-# Number of slices = floor(total_height / layer_height)
-# floor() = round DOWN (we don't print partial top layers)
-# =============================================================================
+
 
 def compute_bounding_box(triangles):
     """
@@ -240,31 +193,7 @@ def compute_layer_count(min_z, max_z, layer_height=0.2):
 # =============================================================================
 # TASK 3: PRINT TIME ESTIMATION
 # =============================================================================
-#
-# SETTINGS GIVEN:
-#   Print speed:  60 mm/s
-#   Layer height: 0.2 mm
-#   Walls only, no infill (hollow shell)
-#   1 perimeter wall
-#
-# APPROACH:
-# The nozzle traces the OUTLINE (perimeter) of the shoe at each layer.
-# 
-# For each layer Z height:
-#   1. Find which triangles cross that Z plane
-#   2. Compute where each triangle edge intersects the plane → gives (x,y) points
-#   3. Each triangle gives a small line segment in the cross-section
-#   4. Sum all segment lengths = perimeter of that layer
-#
-# Total path = sum of all layer perimeters
-# Print time = total path / print speed
-#
-# LIMITATIONS (be honest about these):
-#   - Ignores travel moves (nozzle moving without printing)
-#   - Ignores acceleration/deceleration
-#   - Ignores layer start/end overhead
-#   - May over-count at edges where triangles share a point on the plane
-# =============================================================================
+
 
 def _edge_plane_intersect(v1, v2, z_plane):
     """
